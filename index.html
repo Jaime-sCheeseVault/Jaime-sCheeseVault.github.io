@@ -50,6 +50,7 @@
     .filename {
       word-break: break-word;
       margin-bottom:10px;
+      font-size:14px;
     }
 
     button {
@@ -63,6 +64,16 @@
     .download {
       background:#22c55e;
       color:black;
+      font-weight:bold;
+    }
+
+    h3 {
+      margin-bottom:5px;
+    }
+
+    .hint {
+      color:#94a3b8;
+      font-size:13px;
     }
   </style>
 </head>
@@ -77,9 +88,10 @@
   </div>
 </header>
 
-<!-- Quick Download Section Only -->
+<!-- ONLY Quick Download Section -->
 <div class="container">
   <h3>Quick Download SWFs</h3>
+  <p class="hint">Auto-loaded from GitHub repository (max 20 games).</p>
   <div id="manualGames" class="grid"></div>
 </div>
 
@@ -94,7 +106,12 @@
 
       const swfFiles = files.filter(file => file.name.endsWith(".swf"));
 
-      // Render up to 20 SWF buttons
+      if (swfFiles.length === 0) {
+        manualContainer.innerHTML = "No SWF files found.";
+        return;
+      }
+
+      // Render up to 20 buttons
       for (let i = 0; i < Math.min(20, swfFiles.length); i++) {
         const file = swfFiles[i];
 
@@ -118,7 +135,7 @@
 
     } catch (err) {
       console.error(err);
-      manualContainer.innerHTML = "Failed to load games.";
+      manualContainer.innerHTML = "Failed to load games from GitHub.";
     }
   }
 
