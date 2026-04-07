@@ -64,19 +64,31 @@
     const dropZone = document.getElementById("dropZone");
     const fileInput = document.getElementById("fileInput");
 
-    function loadSWF(file) {
-      const url = URL.createObjectURL(file);
+     function loadSWF(file) {
+    const url = URL.createObjectURL(file);
 
-      const ruffle = window.RufflePlayer.newest();
-      const player = ruffle.createPlayer();
+    const ruffle = window.RufflePlayer.newest();
+    const player = ruffle.createPlayer();
 
-      const container = document.getElementById("player");
-      container.innerHTML = "";
-      container.appendChild(player);
+    const container = document.getElementById("player");
+    container.innerHTML = "";
+    container.appendChild(player);
 
-      player.load(url);
-    }
+    // Load the SWF
+    player.load(url);
 
+    // Wait for metadata to get dimensions
+    player.addEventListener("loadedmetadata", () => {
+      const width = player.metadata.width;
+      const height = player.metadata.height;
+
+      if (width && height) {
+        // Resize player to match SWF size
+        player.style.width = width + "px";
+        player.style.height = height + "px";
+      }
+    });
+  }
     // File input
     fileInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
