@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Play SWF</title>
+  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+  <style>
+    body { margin:0; background:black; display:flex; flex-direction:column; align-items:center; }
+    #player { width:100%; height:100vh; }
+    a { position:fixed; top:10px; left:10px; color:white; }
+  </style>
+</head>
+<body>
+  <a href="index.html">⬅ Back</a>
+  <div id="player"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const src = params.get("src");
+
+    if (src) {
+      const ruffle = window.RufflePlayer.newest();
+      const player = ruffle.createPlayer();
+      document.getElementById("player").appendChild(player);
+      player.load(src);
+    } else {
+      document.body.innerHTML = "No SWF provided";
+    }
+  </script>
+</body>
+</html>
