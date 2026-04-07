@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SWF Library</title>
 
-  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
-
   <style>
     body {
       font-family: Arial;
@@ -43,19 +41,22 @@
       background:#1e293b;
       padding:15px;
       border-radius:10px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+
+    .filename {
+      word-break: break-word;
+      margin-bottom:10px;
     }
 
     button {
       margin-top:10px;
-      padding:6px 10px;
+      padding:8px;
       border:none;
       border-radius:6px;
       cursor:pointer;
-    }
-
-    .play {
-      background:#38bdf8;
-      color:black;
     }
 
     .download {
@@ -63,20 +64,9 @@
       color:black;
     }
 
-    /* Player */
-    #playerWrapper {
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      margin-top:20px;
-    }
-
-    #player {
-      width:800px;
-      height:600px;
-      background:black;
-      border-radius:10px;
-      overflow:hidden;
+    .hint {
+      color:#94a3b8;
+      font-size:14px;
     }
   </style>
 </head>
@@ -92,14 +82,8 @@
 
 <div class="container">
   <h3>Games from GitHub</h3>
+  <p class="hint">Click download to save SWF files, then upload them on the Upload page.</p>
   <div id="games" class="grid"></div>
-</div>
-
-<div class="container">
-  <h3>Game Player</h3>
-  <div id="playerWrapper">
-    <div id="player"></div>
-  </div>
 </div>
 
 <script>
@@ -113,6 +97,11 @@
 
       const swfFiles = files.filter(file => file.name.endsWith(".swf"));
 
+      if (swfFiles.length === 0) {
+        gamesContainer.innerHTML = "No SWF files found.";
+        return;
+      }
+
       swfFiles.forEach(file => {
         const rawURL = file.download_url;
 
@@ -120,24 +109,10 @@
         card.className = "card";
 
         card.innerHTML = `
-          <div>${file.name}</div>
-          <button class="play">Play</button>
+          <div class="filename">${file.name}</div>
           <button class="download">Download</button>
         `;
 
-        // Play in embedded player
-        card.querySelector(".play").onclick = () => {
-          const ruffle = window.RufflePlayer.newest();
-          const player = ruffle.createPlayer();
-
-          const container = document.getElementById("player");
-          container.innerHTML = "";
-          container.appendChild(player);
-
-          player.load(rawURL);
-        };
-
-        // Download SWF
         card.querySelector(".download").onclick = () => {
           const a = document.createElement("a");
           a.href = rawURL;
