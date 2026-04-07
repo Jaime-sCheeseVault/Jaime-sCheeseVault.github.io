@@ -125,15 +125,27 @@
 
         const btn = card.querySelector(".download");
 
-        btn.onclick = () => {
-          // Create anchor properly and append to DOM
-          const a = document.createElement("a");
-          a.href = downloadUrl;
-          a.download = file.name;
-          a.target = "_blank"; // helps avoid blocking
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
+        btn.onclick = async () => {
+          try {
+            const response = await fetch(downloadUrl);
+            const blob = await response.blob();
+
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = blobUrl;
+            a.download = file.name;
+
+            document.body.appendChild(a);
+            a.click();
+
+            a.remove();
+            window.URL.revokeObjectURL(blobUrl);
+
+          } catch (err) {
+            console.error("Download failed:", err);
+            alert("Download failed.");
+          }
         };
 
         manualContainer.appendChild(card);
