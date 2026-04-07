@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SWF Player Library</title>
+
+  <!-- Ruffle -->
+  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+
+  <style>
+    body {
+      margin:0;
+      font-family: Arial;
+      background:#0f172a;
+      color:white;
+      display:flex;
+      height:100vh;
+    }
+
+    /* Sidebar (game list) */
+    .sidebar {
+      width:300px;
+      background:#020617;
+      padding:15px;
+      overflow-y:auto;
+      border-right:1px solid #1e293b;
+    }
+
+    .game-item {
+      padding:10px;
+      margin-bottom:8px;
+      background:#1e293b;
+      border-radius:6px;
+      cursor:pointer;
+      transition:0.2s;
+    }
+
+    .game-item:hover {
+      background:#334155;
+    }
+
+    /* Main player area */
+    .main {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+
+    .player-container {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      height:100%;
+    }
+
+    #player {
+      max-width:90%;
+      max-height:80%;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    /* Controller panel */
+    .controls {
+      position:absolute;
+      bottom:20px;
+      background:#020617;
+      padding:10px 15px;
+      border-radius:10px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      border:1px solid #1e293b;
+    }
+
+    button {
+      padding:8px 12px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      background:#22c55e;
+      color:black;
+      font-weight:bold;
+    }
+
+    .title {
+      position:absolute;
+      top:15px;
+      font-size:14px;
+      color:#94a3b8;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <h3>Games</h3>
+  <div id="gameList"></div>
+</div>
+
+<!-- Main Player -->
+<div class="main">
+  <div class="title" id="currentTitle">Select a game</div>
+
+  <div class="player-container">
+    <div id="player"></div>
+  </div>
+
+  <!-- Controller Panel -->
+  <div class="controls">
+    <button onclick="toggleFullscreen()">Fullscreen</button>
+    <button onclick="stopGame()">Stop</button>
+  </div>
+</div>
+
+<script>
+  const repoAPI = "https://api.github.com/repos/Jaime-sCheeseVault/swf-games/contents/";
+  const gameList = document.getElementById("gameList");
+  const playerDiv = document.getElementById("player");
+  const title = document.getElementById("currentTitle");
+
+  let rufflePlayer = null;
+
+  async function loadGames() {
+    try {
+      const res = await fetch(repoAPI);
+      const files = await res.json();
+
+      const swfFiles = files.filter(f => f.name.endsWith(".swf"));
+
+      swfFiles.forEach(file => {
+        const div = document.createElement("div");
+        div.className = "game-item";
+        div.innerText = file.name;
+
+        div.onclick = () => loadGame(file.download_url, file.name);
+
+        gameList.appendChild(div);
+      });
+
+    } catch (err) {
+      console.error(err);
+      gameList.innerHTML = "Failed to load games.";
+    }
+  }
+
+  function loadGame(url, name) {
+    title.innerText = name;
+
+    // Clear previous player
+    playerDiv.innerHTML = "";
+
+    const ruffle = window.RufflePlayer.newest();
+    rufflePlayer = ruffle.createPlayer();
+
+    rufflePlayer.style.width = "100%";
+    rufflePlayer.style.height = "100%";
+
+    playerDiv.appendChild(rufflePlayer);
+
+    rufflePlayer.load(url);
+  }
+
+  function toggleFullscreen() {
+    const elem = document.querySelector("#player");
+
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch(err => {
+        alert("Fullscreen failed: " + err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  function stopGame() {
+    if (rufflePlayer) {
+      playerDiv.innerHTML = "";
+      title.innerText = "Select a game";
+    }
+  }
+
+  loadGames();
+</script>
+
+</body>
+</html>
