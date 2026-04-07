@@ -80,13 +80,23 @@
   </div>
 </header>
 
+<!-- GitHub Games -->
 <div class="container">
   <h3>Games from GitHub</h3>
-  <p class="hint">Click download to save SWF files, then upload them on the Upload page.</p>
+  <p class="hint">Click download to save SWF files.</p>
   <div id="games" class="grid"></div>
 </div>
 
+<!-- Manual Buttons -->
+<div class="container">
+  <h3>Quick Download SWFs</h3>
+  <div id="manualGames" class="grid"></div>
+</div>
+
 <script>
+  // =========================
+  // GitHub SWF Loader
+  // =========================
   const repoAPI = "https://api.github.com/repos/Jaime-sCheeseVault/swf-games/contents/";
   const gamesContainer = document.getElementById("games");
 
@@ -130,6 +140,58 @@
   }
 
   loadGames();
+
+  // =========================
+  // Manual SWF Buttons (20 slots)
+  // =========================
+  const manualContainer = document.getElementById("manualGames");
+
+  const swfLinks = [
+    { name: "Game 1", url: "" },
+    { name: "Game 2", url: "" },
+    { name: "Game 3", url: "" },
+    { name: "Game 4", url: "" },
+    { name: "Game 5", url: "" },
+    { name: "Game 6", url: "" },
+    { name: "Game 7", url: "" },
+    { name: "Game 8", url: "" },
+    { name: "Game 9", url: "" },
+    { name: "Game 10", url: "" },
+    { name: "Game 11", url: "" },
+    { name: "Game 12", url: "" },
+    { name: "Game 13", url: "" },
+    { name: "Game 14", url: "" },
+    { name: "Game 15", url: "" },
+    { name: "Game 16", url: "" },
+    { name: "Game 17", url: "" },
+    { name: "Game 18", url: "" },
+    { name: "Game 19", url: "" },
+    { name: "Game 20", url: "" }
+  ];
+
+  swfLinks.forEach(game => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <div class="filename">${game.name}</div>
+      <button class="download">Download</button>
+    `;
+
+    card.querySelector(".download").onclick = () => {
+      if (!game.url) {
+        alert("No SWF link assigned yet.");
+        return;
+      }
+
+      const a = document.createElement("a");
+      a.href = game.url;
+      a.download = game.name + ".swf";
+      a.click();
+    };
+
+    manualContainer.appendChild(card);
+  });
 </script>
 
 </body>
