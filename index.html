@@ -88,7 +88,6 @@
   </div>
 </header>
 
-<!-- ONLY Quick Download Section -->
 <div class="container">
   <h3>Quick Download SWFs</h3>
   <p class="hint">Auto-loaded from GitHub repository (max 20 games).</p>
@@ -111,23 +110,30 @@
         return;
       }
 
-      // Render up to 20 buttons
-      for (let i = 0; i < Math.min(1000, swfFiles.length); i++) {
+      for (let i = 0; i < Math.min(20, swfFiles.length); i++) {
         const file = swfFiles[i];
 
         const card = document.createElement("div");
         card.className = "card";
+
+        const downloadUrl = file.download_url;
 
         card.innerHTML = `
           <div class="filename">${file.name}</div>
           <button class="download">Download</button>
         `;
 
-        card.querySelector(".download").onclick = () => {
+        const btn = card.querySelector(".download");
+
+        btn.onclick = () => {
+          // Create anchor properly and append to DOM
           const a = document.createElement("a");
-          a.href = file.download_url;
+          a.href = downloadUrl;
           a.download = file.name;
+          a.target = "_blank"; // helps avoid blocking
+          document.body.appendChild(a);
           a.click();
+          document.body.removeChild(a);
         };
 
         manualContainer.appendChild(card);
