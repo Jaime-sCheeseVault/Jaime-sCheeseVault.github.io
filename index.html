@@ -69,10 +69,6 @@
       color:#94a3b8;
       font-size:14px;
     }
-
-    h3 {
-      margin-bottom:5px;
-    }
   </style>
 </head>
 
@@ -89,14 +85,12 @@
 <!-- GitHub Games -->
 <div class="container">
   <h3>Games from GitHub</h3>
-  <p class="hint">Click download to save SWF files.</p>
   <div id="games" class="grid"></div>
 </div>
 
 <!-- Quick Download Section -->
 <div class="container">
   <h3>Quick Download SWFs</h3>
-  <p class="hint">Auto-loaded from GitHub repository.</p>
   <div id="manualGames" class="grid"></div>
 </div>
 
@@ -113,39 +107,9 @@
       const swfFiles = files.filter(file => file.name.endsWith(".swf"));
 
       // =========================
-      // Section 1: GitHub Games
+      // GitHub Games Section
       // =========================
-      if (swfFiles.length === 0) {
-        gamesContainer.innerHTML = "No SWF files found.";
-      } else {
-        swfFiles.forEach(file => {
-          const card = document.createElement("div");
-          card.className = "card";
-
-          card.innerHTML = `
-            <div class="filename">${file.name}</div>
-            <button class="download">Download</button>
-          `;
-
-          card.querySelector(".download").onclick = () => {
-            const a = document.createElement("a");
-            a.href = file.download_url;
-            a.download = file.name;
-            a.click();
-          };
-
-          gamesContainer.appendChild(card);
-        });
-      }
-
-      // =========================
-      // Section 2: Quick Downloads (20 slots)
-      // =========================
-
-      // Take up to 20 SWFs from repo
-      const limitedFiles = swfFiles.slice(0, 20);
-
-      limitedFiles.forEach(file => {
+      swfFiles.forEach(file => {
         const card = document.createElement("div");
         card.className = "card";
 
@@ -161,8 +125,35 @@
           a.click();
         };
 
-        manualContainer.appendChild(card);
+        gamesContainer.appendChild(card);
       });
+
+      // =========================
+      // Quick Download Section (20 buttons)
+      // =========================
+      for (let i = 0; i < Math.min(20, swfFiles.length); i++) {
+        const file = swfFiles[i];
+
+        // Construct GitHub API-based URL
+        const githubUrl = file.download_url;
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <div class="filename">${file.name}</div>
+          <button class="download">Download</button>
+        `;
+
+        card.querySelector(".download").onclick = () => {
+          const a = document.createElement("a");
+          a.href = githubUrl;
+          a.download = file.name;
+          a.click();
+        };
+
+        manualContainer.appendChild(card);
+      }
 
     } catch (err) {
       console.error(err);
