@@ -18,7 +18,6 @@
       height:100vh;
     }
 
-    /* Sidebar (game list) */
     .sidebar {
       width:300px;
       background:#020617;
@@ -33,14 +32,12 @@
       background:#1e293b;
       border-radius:6px;
       cursor:pointer;
-      transition:0.2s;
     }
 
     .game-item:hover {
       background:#334155;
     }
 
-    /* Main player area */
     .main {
       flex:1;
       display:flex;
@@ -50,24 +47,14 @@
       position:relative;
     }
 
-    .player-container {
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      width:100%;
-      height:100%;
-    }
-
     #player {
-      max-width:90%;
-      max-height:80%;
+      width:90%;
+      height:80%;
       display:flex;
-      justify-content:center;
       align-items:center;
+      justify-content:center;
     }
 
-    /* Controller panel */
     .controls {
       position:absolute;
       bottom:20px;
@@ -76,7 +63,6 @@
       border-radius:10px;
       display:flex;
       gap:10px;
-      align-items:center;
       border:1px solid #1e293b;
     }
 
@@ -101,21 +87,16 @@
 
 <body>
 
-<!-- Sidebar -->
 <div class="sidebar">
   <h3>Games</h3>
   <div id="gameList"></div>
 </div>
 
-<!-- Main Player -->
 <div class="main">
   <div class="title" id="currentTitle">Select a game</div>
 
-  <div class="player-container">
-    <div id="player"></div>
-  </div>
+  <div id="player"></div>
 
-  <!-- Controller Panel -->
   <div class="controls">
     <button onclick="toggleFullscreen()">Fullscreen</button>
     <button onclick="stopGame()">Stop</button>
@@ -128,7 +109,7 @@
   const playerDiv = document.getElementById("player");
   const title = document.getElementById("currentTitle");
 
-  let rufflePlayer = null;
+  let player = null;
 
   async function loadGames() {
     try {
@@ -153,25 +134,36 @@
     }
   }
 
-  function loadGame(url, name) {
+  async function loadGame(url, name) {
     title.innerText = name;
-
-    // Clear previous player
     playerDiv.innerHTML = "";
 
-    const ruffle = window.RufflePlayer.newest();
-    rufflePlayer = ruffle.createPlayer();
+    try {
+      // Verify SWF URL first
+      const test = await fetch(url, { method: "HEAD" });
+      if (!test.ok) {
+        throw new Error("SWF file not accessible");
+      }
 
-    rufflePlayer.style.width = "100%";
-    rufflePlayer.style.height = "100%";
+      const ruffle = window.RufflePlayer.newest();
+      player = ruffle.createPlayer();
 
-    playerDiv.appendChild(rufflePlayer);
+      player.style.width = "100%";
+      player.style.height = "100%";
 
-    rufflePlayer.load(url);
+      playerDiv.appendChild(player);
+
+      // Load SWF
+      player.load(url);
+
+    } catch (err) {
+      console.error("Load error:", err);
+      playerDiv.innerHTML = "<p>Failed to load game.</p>";
+    }
   }
 
   function toggleFullscreen() {
-    const elem = document.querySelector("#player");
+    const elem = playerDiv;
 
     if (!document.fullscreenElement) {
       elem.requestFullscreen().catch(err => {
@@ -183,10 +175,8 @@
   }
 
   function stopGame() {
-    if (rufflePlayer) {
-      playerDiv.innerHTML = "";
-      title.innerText = "Select a game";
-    }
+    playerDiv.innerHTML = "";
+    title.innerText = "Select a game";
   }
 
   loadGames();
