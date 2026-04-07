@@ -1,79 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Upload SWF</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SWF Player</title>
+  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+
   <style>
     body {
+      margin: 0;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       font-family: Arial;
-      background:#0f172a;
-      color:white;
-      text-align:center;
-      padding-top:50px;
     }
-    input, button {
-      margin:10px;
-      padding:10px;
+
+    #dropZone {
+      border: 2px dashed #38bdf8;
+      padding: 40px;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 20px;
+      width: 300px;
+    }
+
+    #player {
+      width: 800px;
+      height: 600px;
+    }
+
+    input {
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-  <h2>Upload SWF File</h2>
+  <div id="dropZone">
+    <p>Drag & Drop SWF here</p>
+    <p>or</p>
+    <input type="file" id="fileInput" accept=".swf" />
+  </div>
 
-  <input type="file" id="fileInput" accept=".swf" />
-  <br/>
-  <button onclick="uploadFile()">Upload</button>
-
-  <br/><br/>
-  <a href="index.html" style="color:#38bdf8;">Back Home</a>
+  <div id="player"></div>
 
   <script>
-    function uploadFile() {
-      const fileInput = document.getElementById("fileInput");
-      const file = fileInput.files[0];
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
 
-      if (!file) {
-        alert("Please select a file.");
-        return;
-      }
+    function loadSWF(file) {
+      const url = URL.createObjectURL(file);
 
-      // Warn about large files
-      if (file.size > 4 * 1024 * 1024) {
-        alert("Warning: This file is large and may fail due to browser storage limits.");
-      }
+      const ruffle = window.RufflePlayer.newest();
+      const player = ruffle.createPlayer();
 
-      const reader = new FileReader();
+      const container = document.getElementById("player");
+      container.innerHTML = "";
+      container.appendChild(player);
 
-      reader.onload = function(e) {
-        try {
-          const dataUrl = e.target.result;
-
-          let games = JSON.parse(localStorage.getItem("swfFiles") || "[]");
-
-          games.push({
-            name: file.name,
-            data: dataUrl
-          });
-
-          localStorage.setItem("swfFiles", JSON.stringify(games));
-
-          alert("Upload successful!");
-          window.location.href = "index.html";
-
-        } catch (err) {
-          console.error(err);
-          alert("Upload failed. Likely storage quota exceeded.");
-        }
-      };
-
-      reader.onerror = function() {
-        alert("Failed to read file.");
-      };
-
-      reader.readAsDataURL(file);
+      player.load(url);
     }
+
+    // File input
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) loadSWF(file);
+    });
+
+    // Drag & drop
+    dropZone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = "#22d3ee";
+    });
+
+    dropZone.addEventListener("dragleave", () => {
+      dropZone.style.borderColor = "#38bdf8";
+    });
+
+    dropZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = "#38bdf8";
+
+      const file = e.dataTransfer.files[0];
+      if (file && file.name.endsWith(".swf")) {
+        loadSWF(file);
+      } else {
+        alert("Please drop a valid .swf file");
+      }
+    });
   </script>
 
 </body>
