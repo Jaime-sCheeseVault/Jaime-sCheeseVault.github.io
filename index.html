@@ -64,11 +64,6 @@
       background:#22c55e;
       color:black;
     }
-
-    .hint {
-      color:#94a3b8;
-      font-size:14px;
-    }
   </style>
 </head>
 
@@ -82,13 +77,7 @@
   </div>
 </header>
 
-<!-- GitHub Games -->
-<div class="container">
-  <h3>Games from GitHub</h3>
-  <div id="games" class="grid"></div>
-</div>
-
-<!-- Quick Download Section -->
+<!-- Quick Download Section Only -->
 <div class="container">
   <h3>Quick Download SWFs</h3>
   <div id="manualGames" class="grid"></div>
@@ -96,7 +85,6 @@
 
 <script>
   const repoAPI = "https://api.github.com/repos/Jaime-sCheeseVault/swf-games/contents/";
-  const gamesContainer = document.getElementById("games");
   const manualContainer = document.getElementById("manualGames");
 
   async function loadGames() {
@@ -106,10 +94,10 @@
 
       const swfFiles = files.filter(file => file.name.endsWith(".swf"));
 
-      // =========================
-      // GitHub Games Section
-      // =========================
-      swfFiles.forEach(file => {
+      // Render up to 20 SWF buttons
+      for (let i = 0; i < Math.min(20, swfFiles.length); i++) {
+        const file = swfFiles[i];
+
         const card = document.createElement("div");
         card.className = "card";
 
@@ -125,39 +113,12 @@
           a.click();
         };
 
-        gamesContainer.appendChild(card);
-      });
-
-      // =========================
-      // Quick Download Section (20 buttons)
-      // =========================
-      for (let i = 0; i < Math.min(20, swfFiles.length); i++) {
-        const file = swfFiles[i];
-
-        // Construct GitHub API-based URL
-        const githubUrl = file.download_url;
-
-        const card = document.createElement("div");
-        card.className = "card";
-
-        card.innerHTML = `
-          <div class="filename">${file.name}</div>
-          <button class="download">Download</button>
-        `;
-
-        card.querySelector(".download").onclick = () => {
-          const a = document.createElement("a");
-          a.href = githubUrl;
-          a.download = file.name;
-          a.click();
-        };
-
         manualContainer.appendChild(card);
       }
 
     } catch (err) {
       console.error(err);
-      gamesContainer.innerHTML = "Failed to load games.";
+      manualContainer.innerHTML = "Failed to load games.";
     }
   }
 
