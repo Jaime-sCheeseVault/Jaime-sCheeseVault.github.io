@@ -2,39 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Upload SWF</title>
   <style>
-    body { font-family: Arial; background:#0f172a; color:white; text-align:center; }
-    input, button { margin:10px; padding:10px; }
+    body {
+      font-family: Arial;
+      background:#0f172a;
+      color:white;
+      text-align:center;
+      padding-top:50px;
+    }
+    input, button {
+      margin:10px;
+      padding:10px;
+    }
   </style>
 </head>
 <body>
+
   <h2>Upload SWF File</h2>
+
   <input type="file" id="fileInput" accept=".swf" />
   <br/>
   <button onclick="uploadFile()">Upload</button>
+
   <br/><br/>
-  <a href="index.html">Back Home</a>
+  <a href="index.html" style="color:#38bdf8;">Back Home</a>
 
   <script>
     function uploadFile() {
       const fileInput = document.getElementById("fileInput");
       const file = fileInput.files[0];
-      if (!file) return alert("Select a file");
+
+      if (!file) {
+        alert("Please select a file.");
+        return;
+      }
+
+      // Warn about large files
+      if (file.size > 4 * 1024 * 1024) {
+        alert("Warning: This file is large and may fail due to browser storage limits.");
+      }
 
       const reader = new FileReader();
+
       reader.onload = function(e) {
-        const dataUrl = e.target.result;
+        try {
+          const dataUrl = e.target.result;
 
-        let games = JSON.parse(localStorage.getItem("swfFiles") || "[]");
-        games.push({ name: file.name, data: dataUrl });
-        localStorage.setItem("swfFiles", JSON.stringify(games));
+          let games = JSON.parse(localStorage.getItem("swfFiles") || "[]");
 
-        alert("Uploaded successfully!");
-        window.location.href = "index.html";
+          games.push({
+            name: file.name,
+            data: dataUrl
+          });
+
+          localStorage.setItem("swfFiles", JSON.stringify(games));
+
+          alert("Upload successful!");
+          window.location.href = "index.html";
+
+        } catch (err) {
+          console.error(err);
+          alert("Upload failed. Likely storage quota exceeded.");
+        }
       };
+
+      reader.onerror = function() {
+        alert("Failed to read file.");
+      };
+
       reader.readAsDataURL(file);
     }
   </script>
+
+</body>
 </html>
