@@ -35,6 +35,7 @@
       display:grid;
       grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
       gap:15px;
+      margin-top:10px;
     }
 
     .card {
@@ -68,8 +69,13 @@
       color:#94a3b8;
       font-size:14px;
     }
+
+    h3 {
+      margin-bottom:5px;
+    }
   </style>
 </head>
+
 <body>
 
 <header>
@@ -87,18 +93,17 @@
   <div id="games" class="grid"></div>
 </div>
 
-<!-- Manual Buttons -->
+<!-- Quick Download Section -->
 <div class="container">
   <h3>Quick Download SWFs</h3>
+  <p class="hint">Auto-loaded from GitHub repository.</p>
   <div id="manualGames" class="grid"></div>
 </div>
 
 <script>
-  // =========================
-  // GitHub SWF Loader
-  // =========================
   const repoAPI = "https://api.github.com/repos/Jaime-sCheeseVault/swf-games/contents/";
   const gamesContainer = document.getElementById("games");
+  const manualContainer = document.getElementById("manualGames");
 
   async function loadGames() {
     try {
@@ -107,14 +112,40 @@
 
       const swfFiles = files.filter(file => file.name.endsWith(".swf"));
 
+      // =========================
+      // Section 1: GitHub Games
+      // =========================
       if (swfFiles.length === 0) {
         gamesContainer.innerHTML = "No SWF files found.";
-        return;
+      } else {
+        swfFiles.forEach(file => {
+          const card = document.createElement("div");
+          card.className = "card";
+
+          card.innerHTML = `
+            <div class="filename">${file.name}</div>
+            <button class="download">Download</button>
+          `;
+
+          card.querySelector(".download").onclick = () => {
+            const a = document.createElement("a");
+            a.href = file.download_url;
+            a.download = file.name;
+            a.click();
+          };
+
+          gamesContainer.appendChild(card);
+        });
       }
 
-      swfFiles.forEach(file => {
-        const rawURL = file.download_url;
+      // =========================
+      // Section 2: Quick Downloads (20 slots)
+      // =========================
 
+      // Take up to 20 SWFs from repo
+      const limitedFiles = swfFiles.slice(0, 20);
+
+      limitedFiles.forEach(file => {
         const card = document.createElement("div");
         card.className = "card";
 
@@ -125,12 +156,12 @@
 
         card.querySelector(".download").onclick = () => {
           const a = document.createElement("a");
-          a.href = rawURL;
+          a.href = file.download_url;
           a.download = file.name;
           a.click();
         };
 
-        gamesContainer.appendChild(card);
+        manualContainer.appendChild(card);
       });
 
     } catch (err) {
@@ -140,58 +171,6 @@
   }
 
   loadGames();
-
-  // =========================
-  // Manual SWF Buttons (20 slots)
-  // =========================
-  const manualContainer = document.getElementById("manualGames");
-
-  const swfLinks = [
-    { name: "Game 1", url: "" },
-    { name: "Game 2", url: "" },
-    { name: "Game 3", url: "" },
-    { name: "Game 4", url: "" },
-    { name: "Game 5", url: "" },
-    { name: "Game 6", url: "" },
-    { name: "Game 7", url: "" },
-    { name: "Game 8", url: "" },
-    { name: "Game 9", url: "" },
-    { name: "Game 10", url: "" },
-    { name: "Game 11", url: "" },
-    { name: "Game 12", url: "" },
-    { name: "Game 13", url: "" },
-    { name: "Game 14", url: "" },
-    { name: "Game 15", url: "" },
-    { name: "Game 16", url: "" },
-    { name: "Game 17", url: "" },
-    { name: "Game 18", url: "" },
-    { name: "Game 19", url: "" },
-    { name: "Game 20", url: "" }
-  ];
-
-  swfLinks.forEach(game => {
-    const card = document.createElement("div");
-    card.className = "card";
-
-    card.innerHTML = `
-      <div class="filename">${game.name}</div>
-      <button class="download">Download</button>
-    `;
-
-    card.querySelector(".download").onclick = () => {
-      if (!game.url) {
-        alert("No SWF link assigned yet.");
-        return;
-      }
-
-      const a = document.createElement("a");
-      a.href = game.url;
-      a.download = game.name + ".swf";
-      a.click();
-    };
-
-    manualContainer.appendChild(card);
-  });
 </script>
 
 </body>
